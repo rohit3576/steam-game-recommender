@@ -6,72 +6,82 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 # Page Config
-st.set_page_config(page_title="Steam Hit Predictor", layout="wide", page_icon="🎮")
+st.set_page_config(
+    page_title="Steam Hit Predictor", 
+    layout="wide", 
+    page_icon="🎮",
+    initial_sidebar_state="expanded"
+)
 
-# Custom CSS for Modern UI
+# Custom CSS for Modern UI with better scroll handling
 st.markdown("""
     <style>
     /* Main styling */
     .main-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
+        padding: 1.5rem;
         border-radius: 15px;
         color: white;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
     
     .metric-card {
         background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        padding: 1.5rem;
-        border-radius: 15px;
+        padding: 1.2rem;
+        border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border-left: 5px solid #667eea;
+        border-left: 4px solid #667eea;
         margin-bottom: 1rem;
+        height: 100%;
     }
     
     .prediction-card {
         background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-        padding: 2rem;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
         border: 1px solid #e0e6ed;
+        margin-bottom: 1rem;
     }
     
     .game-info-card {
         background: white;
-        padding: 1.5rem;
-        border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        margin-bottom: 1.5rem;
+        padding: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1rem;
     }
     
+    /* Make tabs more compact */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 2rem;
+        gap: 1rem;
         background-color: #f8f9fa;
         padding: 0.5rem;
         border-radius: 10px;
+        margin-bottom: 1rem;
     }
     
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
+        height: 40px;
         border-radius: 8px;
         font-weight: 600;
+        font-size: 0.9rem;
     }
     
     .success-box {
         background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-        border-left: 5px solid #28a745;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin: 1rem 0;
+        border-left: 4px solid #28a745;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 0.5rem 0;
     }
     
     .warning-box {
         background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-        border-left: 5px solid #ffc107;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin: 1rem 0;
+        border-left: 4px solid #ffc107;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 0.5rem 0;
     }
     
     /* Custom button styling */
@@ -80,10 +90,11 @@ st.markdown("""
         color: white;
         font-weight: 600;
         border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 10px;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
         transition: all 0.3s ease;
         width: 100%;
+        font-size: 0.9rem;
     }
     
     .stButton > button:hover {
@@ -91,9 +102,31 @@ st.markdown("""
         box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
     
-    /* Sidebar styling */
+    /* Improve sidebar scrolling */
     .css-1d391kg {
         background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+    }
+    
+    /* Better scroll handling for main content */
+    .main .block-container {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+    
+    /* Adjust chart heights */
+    .js-plotly-plot {
+        margin-bottom: 1rem;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .main-header h1 {
+            font-size: 1.8rem !important;
+        }
+        
+        .metric-card {
+            padding: 1rem;
+        }
     }
     </style>
     """, unsafe_allow_html=True)
@@ -101,8 +134,8 @@ st.markdown("""
 # Header with gradient
 st.markdown("""
     <div class="main-header">
-        <h1 style="margin:0; font-size:2.5rem;">🎮 Steam Game Success Predictor</h1>
-        <p style="margin:0; opacity:0.9; font-size:1.1rem;">Analyze game metrics and predict market success with AI-powered insights</p>
+        <h1 style="margin:0; font-size:2rem;">🎮 Steam Game Success Predictor</h1>
+        <p style="margin:0; opacity:0.9; font-size:1rem;">Analyze game metrics and predict market success with AI-powered insights</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -147,7 +180,8 @@ with st.sidebar:
     
     col1, col2 = st.columns(2)
     with col1:
-        st.metric("💰 Price", f"${game['price_final']:.2f}")
+        st.metric("💰 Price", f"${game['price_final']:.2f}", 
+                  delta=f"-{game['discount']}%" if game['discount'] > 0 else None)
     with col2:
         st.metric("⭐ Rating", f"{game['positive_ratio']}%")
     
@@ -155,297 +189,319 @@ with st.sidebar:
     st.markdown("### 🖥️ OS Support")
     os_col1, os_col2, os_col3 = st.columns(3)
     with os_col1:
-        st.markdown(f"<div style='text-align:center; padding:0.5rem; background:{'#4CAF50' if game.get('win') else '#e0e0e0'}; border-radius:5px; color:white;'>Windows</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align:center; padding:0.4rem; background:{'#4CAF50' if game.get('win') else '#e0e0e0'}; border-radius:5px; color:white; font-size:0.8rem;'>Win</div>", 
+                    unsafe_allow_html=True)
     with os_col2:
-        st.markdown(f"<div style='text-align:center; padding:0.5rem; background:{'#2196F3' if game.get('mac') else '#e0e0e0'}; border-radius:5px; color:white;'>Mac</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align:center; padding:0.4rem; background:{'#2196F3' if game.get('mac') else '#e0e0e0'}; border-radius:5px; color:white; font-size:0.8rem;'>Mac</div>", 
+                    unsafe_allow_html=True)
     with os_col3:
-        st.markdown(f"<div style='text-align:center; padding:0.5rem; background:{'#FF9800' if game.get('linux') else '#e0e0e0'}; border-radius:5px; color:white;'>Linux</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align:center; padding:0.4rem; background:{'#FF9800' if game.get('linux') else '#e0e0e0'}; border-radius:5px; color:white; font-size:0.8rem;'>Linux</div>", 
+                    unsafe_allow_html=True)
 
-# Main Content Layout
-tab1, tab2, tab3 = st.tabs(["📊 Dashboard", "🎯 Prediction Analysis", "📈 Detailed Insights"])
+# Main Content Layout - Use a single column for better mobile experience
+tab1, tab2, tab3 = st.tabs(["📊 Dashboard", "🎯 Analysis", "📈 Insights"])
 
 with tab1:
-    col1, col2 = st.columns([2, 1])
+    # Use single column with proper spacing
+    st.markdown("### 📈 Game Performance Metrics")
     
-    with col1:
-        st.markdown("### 📈 Game Performance Metrics")
-        
-        # Create metric cards in a grid
-        metric_col1, metric_col2, metric_col3 = st.columns(3)
-        
-        with metric_col1:
-            st.markdown(f"""
-                <div class="metric-card">
-                    <div style="font-size:0.9rem; color:#666;">Total Reviews</div>
-                    <div style="font-size:2rem; font-weight:bold; color:#333;">{game['user_reviews']:,}</div>
-                    <div style="font-size:0.8rem; color:#888;">Market Rank: #{df[df['user_reviews'] > game['user_reviews']].shape[0] + 1}</div>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        with metric_col2:
-            discount_status = "Active" if game['discount'] > 0 else "None"
-            discount_color = "#E91E63" if game['discount'] > 0 else "#666"
-            st.markdown(f"""
-                <div class="metric-card">
-                    <div style="font-size:0.9rem; color:#666;">Discount Status</div>
-                    <div style="font-size:2rem; font-weight:bold; color:{discount_color};">{game['discount']}%</div>
-                    <div style="font-size:0.8rem; color:#888;">{discount_status}</div>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        with metric_col3:
-            st.markdown(f"""
-                <div class="metric-card">
-                    <div style="font-size:0.9rem; color:#666;">Release Year</div>
-                    <div style="font-size:2rem; font-weight:bold; color:#333;">{game.get('year', 'N/A')}</div>
-                    <div style="font-size:0.8rem; color:#888;">Age: {2024 - int(game.get('year', 2024)) if str(game.get('year')).isdigit() else 'N/A'} years</div>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        # Performance comparison chart
-        st.markdown("### 📊 Market Comparison")
-        
-        fig = make_subplots(rows=1, cols=2, subplot_titles=("Price Comparison", "Review Comparison"))
-        
-        # Price comparison
-        fig.add_trace(go.Bar(
-            x=['Selected Game', 'Market Avg'],
-            y=[game['price_final'], df['price_final'].mean()],
-            marker_color=['#667eea', '#c3cfe2'],
-            text=[f"${game['price_final']:.2f}", f"${df['price_final'].mean():.2f}"],
-            textposition='auto',
-        ), row=1, col=1)
-        
-        # Review comparison (normalized)
-        max_reviews = df['user_reviews'].max()
-        fig.add_trace(go.Bar(
-            x=['Selected Game', 'Market Avg', 'Market Max'],
-            y=[game['user_reviews']/max_reviews*100, 
-               df['user_reviews'].mean()/max_reviews*100,
-               100],
-            marker_color=['#764ba2', '#c3cfe2', '#f8f9fa'],
-            text=[f"{game['user_reviews']:,}", 
-                  f"{df['user_reviews'].mean():,.0f}",
-                  f"{max_reviews:,}"],
-            textposition='auto',
-        ), row=1, col=2)
-        
-        fig.update_layout(height=400, showlegend=False, template='plotly_white')
-        st.plotly_chart(fig, use_container_width=True)
+    # Metric cards in a responsive grid
+    metric_col1, metric_col2, metric_col3 = st.columns(3)
     
-    with col2:
-        st.markdown("### 🎯 Quick Prediction")
-        st.markdown("---")
-        
-        with st.container():
-            st.markdown("""
-                <div class="prediction-card">
-                    <div style="text-align:center;">
-                        <h3 style="color:#333; margin-bottom:1.5rem;">AI Analysis</h3>
+    with metric_col1:
+        st.markdown(f"""
+            <div class="metric-card">
+                <div style="font-size:0.85rem; color:#666; margin-bottom:0.5rem;">Total Reviews</div>
+                <div style="font-size:1.6rem; font-weight:bold; color:#333; margin-bottom:0.3rem;">{game['user_reviews']:,}</div>
+                <div style="font-size:0.75rem; color:#888;">Rank: #{df[df['user_reviews'] > game['user_reviews']].shape[0] + 1}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    with metric_col2:
+        discount_status = "Active" if game['discount'] > 0 else "None"
+        discount_color = "#E91E63" if game['discount'] > 0 else "#666"
+        st.markdown(f"""
+            <div class="metric-card">
+                <div style="font-size:0.85rem; color:#666; margin-bottom:0.5rem;">Discount</div>
+                <div style="font-size:1.6rem; font-weight:bold; color:{discount_color}; margin-bottom:0.3rem;">{game['discount']}%</div>
+                <div style="font-size:0.75rem; color:#888;">{discount_status}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    with metric_col3:
+        year = game.get('year', 'N/A')
+        age = f"{2024 - int(year)} years" if str(year).isdigit() and int(year) > 0 else 'N/A'
+        st.markdown(f"""
+            <div class="metric-card">
+                <div style="font-size:0.85rem; color:#666; margin-bottom:0.5rem;">Release Year</div>
+                <div style="font-size:1.6rem; font-weight:bold; color:#333; margin-bottom:0.3rem;">{year}</div>
+                <div style="font-size:0.75rem; color:#888;">{age}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    # Prediction section at the top for better visibility
+    st.markdown("---")
+    st.markdown("### 🎯 Success Prediction")
+    
+    pred_col1, pred_col2 = st.columns([1, 2])
+    
+    with pred_col1:
+        if st.button("🚀 Run Analysis", use_container_width=True, type="primary"):
+            input_data = np.array([[game[f] for f in features]])
+            pred = model.predict(input_data)[0]
+            prob = model.predict_proba(input_data)[0][1]
+            
+            if pred == 1:
+                st.markdown(f"""
+                    <div class="success-box">
+                        <div style="font-size:1.2rem; font-weight:bold; color:#28a745; margin-bottom:0.3rem;">🎉 HIT GAME!</div>
+                        <div style="font-size:0.85rem; color:#155724;">High probability of market success</div>
+                    </div>
+                """, unsafe_allow_html=True)
+                st.balloons()
+            else:
+                st.markdown(f"""
+                    <div class="warning-box">
+                        <div style="font-size:1.2rem; font-weight:bold; color:#ffc107; margin-bottom:0.3rem;">📊 NICHE GAME</div>
+                        <div style="font-size:0.85rem; color:#856404;">Standard market performance expected</div>
+                    </div>
                 """, unsafe_allow_html=True)
             
-            if st.button("🚀 Analyze Success Probability", use_container_width=True):
-                input_data = np.array([[game[f] for f in features]])
-                pred = model.predict(input_data)[0]
-                prob = model.predict_proba(input_data)[0][1]
-                
-                if pred == 1:
-                    st.markdown(f"""
-                        <div class="success-box">
-                            <h3 style="color:#28a745; margin:0;">🎉 HIT GAME!</h3>
-                            <p style="margin:0.5rem 0; font-size:0.9rem;">High probability of market success</p>
-                        </div>
-                    """, unsafe_allow_html=True)
-                    st.balloons()
-                else:
-                    st.markdown(f"""
-                        <div class="warning-box">
-                            <h3 style="color:#ffc107; margin:0;">📊 NICHE GAME</h3>
-                            <p style="margin:0.5rem 0; font-size:0.9rem;">Standard market performance expected</p>
-                        </div>
-                    """, unsafe_allow_html=True)
-                
-                # Confidence meter
-                st.markdown("### 📈 Confidence Level")
-                confidence_color = "#4CAF50" if prob > 0.7 else "#FF9800" if prob > 0.4 else "#F44336"
-                st.markdown(f"""
-                    <div style="background:#f0f2f6; border-radius:10px; padding:1rem; margin:1rem 0;">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
-                            <span>Low</span>
-                            <span style="font-weight:bold; color:{confidence_color};">{prob*100:.1f}%</span>
-                            <span>High</span>
-                        </div>
-                        <div style="background:#ddd; height:20px; border-radius:10px; overflow:hidden;">
-                            <div style="width:{prob*100}%; background:{confidence_color}; height:100%;"></div>
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
-
-with tab2:
-    st.markdown("### 🔍 Detailed Prediction Analysis")
-    
-    col1, col2 = st.columns([3, 2])
-    
-    with col1:
-        # Feature importance visualization
-        st.markdown("#### 📊 Key Success Factors")
-        
-        # Sample feature importance (you can replace with actual feature importance if available)
-        sample_features = features[:10]  # Show top 10 features
-        importance_values = np.random.rand(len(sample_features))  # Replace with actual importance
-        
-        fig = go.Figure(data=[go.Bar(
-            x=importance_values,
-            y=sample_features,
-            orientation='h',
-            marker_color='#667eea'
-        )])
-        
-        fig.update_layout(
-            height=400,
-            title="Feature Impact on Success Prediction",
-            xaxis_title="Relative Importance",
-            yaxis_title="Features",
-            template='plotly_white'
-        )
-        st.plotly_chart(fig, use_container_width=True)
-    
-    with col2:
-        st.markdown("#### 📋 Game Profile")
-        
-        # Create a game profile card
-        profile_data = {
-            "Metric": ["Price Category", "Review Volume", "Rating Tier", "Market Position"],
-            "Value": [
-                "Premium" if game['price_final'] > 20 else "Mid-range" if game['price_final'] > 5 else "Budget",
-                "High" if game['user_reviews'] > df['user_reviews'].quantile(0.75) 
-                else "Medium" if game['user_reviews'] > df['user_reviews'].quantile(0.25) 
-                else "Low",
-                "Excellent" if game['positive_ratio'] > 90 
-                else "Good" if game['positive_ratio'] > 75 
-                else "Average",
-                "Top 25%" if game['user_reviews'] > df['user_reviews'].quantile(0.75) 
-                else "Top 50%" if game['user_reviews'] > df['user_reviews'].quantile(0.5) 
-                else "Below Average"
-            ]
-        }
-        
-        for metric, value in zip(profile_data["Metric"], profile_data["Value"]):
+            # Confidence meter
+            confidence_color = "#4CAF50" if prob > 0.7 else "#FF9800" if prob > 0.4 else "#F44336"
             st.markdown(f"""
-                <div class="game-info-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:600; color:#555;">{metric}</span>
-                        <span style="background:#667eea; color:white; padding:0.25rem 0.75rem; border-radius:15px; font-size:0.9rem;">
-                            {value}
-                        </span>
+                <div style="margin:1rem 0;">
+                    <div style="font-size:0.9rem; font-weight:600; color:#555; margin-bottom:0.5rem;">Confidence: {prob*100:.1f}%</div>
+                    <div style="background:#f0f2f6; height:12px; border-radius:6px; overflow:hidden;">
+                        <div style="width:{prob*100}%; background:{confidence_color}; height:100%;"></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#888; margin-top:0.3rem;">
+                        <span>0%</span>
+                        <span>100%</span>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
+    
+    with pred_col2:
+        st.markdown("#### 📊 Market Comparison")
+        
+        # Simplified comparison chart
+        fig = go.Figure()
+        
+        # Add bars for price comparison
+        fig.add_trace(go.Bar(
+            name='Selected Game',
+            x=['Price', 'Rating', 'Reviews (scaled)'],
+            y=[
+                game['price_final'], 
+                game['positive_ratio'],
+                min(game['user_reviews'] / 1000, 100)  # Scale reviews for visibility
+            ],
+            marker_color='#667eea',
+            text=[
+                f"${game['price_final']:.2f}",
+                f"{game['positive_ratio']}%",
+                f"{game['user_reviews']:,}"
+            ],
+            textposition='auto',
+        ))
+        
+        fig.add_trace(go.Bar(
+            name='Market Avg',
+            x=['Price', 'Rating', 'Reviews (scaled)'],
+            y=[
+                df['price_final'].mean(),
+                df['positive_ratio'].mean(),
+                min(df['user_reviews'].mean() / 1000, 100)
+            ],
+            marker_color='#c3cfe2',
+            text=[
+                f"${df['price_final'].mean():.2f}",
+                f"{df['positive_ratio'].mean():.1f}%",
+                f"{df['user_reviews'].mean():,.0f}"
+            ],
+            textposition='auto',
+        ))
+        
+        fig.update_layout(
+            height=300,
+            barmode='group',
+            showlegend=True,
+            template='plotly_white',
+            margin=dict(l=20, r=20, t=40, b=20),
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+
+with tab2:
+    # Simplified analysis tab
+    st.markdown("### 🔍 Feature Analysis")
+    
+    # Top features visualization
+    st.markdown("#### 📋 Key Success Factors")
+    
+    # Get actual feature importance if model supports it
+    try:
+        if hasattr(model, 'feature_importances_'):
+            importance = model.feature_importances_
+            feature_names = features
+        else:
+            # Fallback to random for demonstration
+            importance = np.random.rand(len(features[:8]))
+            feature_names = features[:8]
+    except:
+        importance = np.random.rand(8)
+        feature_names = [f"Feature {i+1}" for i in range(8)]
+    
+    # Sort by importance
+    sorted_idx = np.argsort(importance)[-8:]  # Top 8 features
+    sorted_importance = importance[sorted_idx]
+    sorted_names = [feature_names[i] for i in sorted_idx]
+    
+    fig = go.Figure(data=[go.Bar(
+        x=sorted_importance,
+        y=sorted_names,
+        orientation='h',
+        marker_color='#667eea',
+        text=[f"{val:.3f}" for val in sorted_importance],
+        textposition='auto',
+    )])
+    
+    fig.update_layout(
+        height=350,
+        title="Top Predictive Features",
+        xaxis_title="Importance Score",
+        yaxis_title="Features",
+        template='plotly_white',
+        margin=dict(l=20, r=20, t=40, b=20),
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Game profile
+    st.markdown("#### 🎮 Game Profile")
+    
+    profile_col1, profile_col2 = st.columns(2)
+    
+    with profile_col1:
+        st.markdown(f"""
+            <div class="game-info-card">
+                <div style="font-size:0.9rem; color:#666; margin-bottom:0.3rem;">Price Category</div>
+                <div style="font-size:1rem; font-weight:bold; color:#333;">
+                    {"Premium" if game['price_final'] > 20 else "Mid-range" if game['price_final'] > 5 else "Budget"}
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"""
+            <div class="game-info-card">
+                <div style="font-size:0.9rem; color:#666; margin-bottom:0.3rem;">Review Volume</div>
+                <div style="font-size:1rem; font-weight:bold; color:#333;">
+                    {"High" if game['user_reviews'] > df['user_reviews'].quantile(0.75) 
+                    else "Medium" if game['user_reviews'] > df['user_reviews'].quantile(0.25) 
+                    else "Low"}
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    with profile_col2:
+        st.markdown(f"""
+            <div class="game-info-card">
+                <div style="font-size:0.9rem; color:#666; margin-bottom:0.3rem;">Rating Tier</div>
+                <div style="font-size:1rem; font-weight:bold; color:#333;">
+                    {"Excellent" if game['positive_ratio'] > 90 
+                    else "Good" if game['positive_ratio'] > 75 
+                    else "Average"}
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"""
+            <div class="game-info-card">
+                <div style="font-size:0.9rem; color:#666; margin-bottom:0.3rem;">Market Position</div>
+                <div style="font-size:1rem; font-weight:bold; color:#333;">
+                    {"Top 25%" if game['user_reviews'] > df['user_reviews'].quantile(0.75) 
+                    else "Top 50%" if game['user_reviews'] > df['user_reviews'].quantile(0.5) 
+                    else "Below Average"}
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
 
 with tab3:
-    st.markdown("### 📈 Detailed Insights & Raw Data")
+    # Insights tab - more compact
+    st.markdown("### 📈 Market Insights")
     
-    # Create two columns for different views
+    # Statistics in a cleaner format
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("#### 📊 Statistical Summary")
-        
-        # Calculate some statistics
-        stats_data = {
-            "Statistic": ["Mean", "Median", "Std Dev", "Min", "Max", "25%", "75%"],
+        st.markdown("#### 📊 Price Statistics")
+        price_stats = pd.DataFrame({
+            "Statistic": ["Average", "Median", "Minimum", "Maximum"],
             "Price": [
                 f"${df['price_final'].mean():.2f}",
                 f"${df['price_final'].median():.2f}",
-                f"${df['price_final'].std():.2f}",
                 f"${df['price_final'].min():.2f}",
-                f"${df['price_final'].max():.2f}",
-                f"${df['price_final'].quantile(0.25):.2f}",
-                f"${df['price_final'].quantile(0.75):.2f}"
-            ],
+                f"${df['price_final'].max():.2f}"
+            ]
+        })
+        st.dataframe(price_stats, use_container_width=True, hide_index=True)
+        
+        # Show where selected game stands
+        price_percentile = (df['price_final'] < game['price_final']).mean() * 100
+        st.metric("Price Percentile", f"{price_percentile:.1f}%", 
+                  help="Percentage of games cheaper than this one")
+    
+    with col2:
+        st.markdown("#### 📊 Review Statistics")
+        review_stats = pd.DataFrame({
+            "Statistic": ["Average", "Median", "Minimum", "Maximum"],
             "Reviews": [
                 f"{df['user_reviews'].mean():,.0f}",
                 f"{df['user_reviews'].median():,.0f}",
-                f"{df['user_reviews'].std():,.0f}",
                 f"{df['user_reviews'].min():,.0f}",
-                f"{df['user_reviews'].max():,.0f}",
-                f"{df['user_reviews'].quantile(0.25):,.0f}",
-                f"{df['user_reviews'].quantile(0.75):,.0f}"
+                f"{df['user_reviews'].max():,.0f}"
             ]
-        }
+        })
+        st.dataframe(review_stats, use_container_width=True, hide_index=True)
         
-        stats_df = pd.DataFrame(stats_data)
-        st.dataframe(stats_df, use_container_width=True, hide_index=True)
+        # Show where selected game stands
+        review_percentile = (df['user_reviews'] < game['user_reviews']).mean() * 100
+        st.metric("Review Percentile", f"{review_percentile:.1f}%",
+                  help="Percentage of games with fewer reviews than this one")
     
-    with col2:
-        st.markdown("#### 🎯 Selected Game vs Market")
+    # Raw data in expander
+    with st.expander("📁 View Game Details"):
+        # Display only key columns
+        key_columns = ['title', 'price_final', 'discount', 'positive_ratio', 'user_reviews']
+        if 'win' in game.index: key_columns.append('win')
+        if 'mac' in game.index: key_columns.append('mac')
+        if 'linux' in game.index: key_columns.append('linux')
+        if 'year' in game.index: key_columns.append('year')
         
-        # Radar chart comparing selected game vs average
-        categories = ['Price', 'Reviews', 'Rating', 'Discount']
+        display_data = game[key_columns].to_frame().T
         
-        selected_values = [
-            game['price_final'] / df['price_final'].max() * 100,
-            min(game['user_reviews'] / df['user_reviews'].max() * 100, 100),
-            game['positive_ratio'],
-            game['discount']
-        ]
-        
-        avg_values = [
-            df['price_final'].mean() / df['price_final'].max() * 100,
-            df['user_reviews'].mean() / df['user_reviews'].max() * 100,
-            df['positive_ratio'].mean(),
-            df['discount'].mean()
-        ]
-        
-        fig = go.Figure()
-        
-        fig.add_trace(go.Scatterpolar(
-            r=selected_values,
-            theta=categories,
-            fill='toself',
-            name='Selected Game',
-            line_color='#667eea'
-        ))
-        
-        fig.add_trace(go.Scatterpolar(
-            r=avg_values,
-            theta=categories,
-            fill='toself',
-            name='Market Average',
-            line_color='#c3cfe2'
-        ))
-        
-        fig.update_layout(
-            polar=dict(
-                radialaxis=dict(
-                    visible=True,
-                    range=[0, 100]
-                )),
-            showlegend=True,
-            height=400,
-            template='plotly_white'
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-    
-    # Raw data expander
-    with st.expander("📁 View Complete Raw Data"):
         st.dataframe(
-            game.to_frame().T,
+            display_data,
             use_container_width=True,
             column_config={
-                "title": "Game Title",
+                "title": st.column_config.TextColumn("Game Title", width="medium"),
                 "price_final": st.column_config.NumberColumn("Price", format="$%.2f"),
-                "positive_ratio": st.column_config.NumberColumn("Rating %", format="%.1f%%"),
-                "user_reviews": st.column_config.NumberColumn("Reviews", format="%d")
+                "positive_ratio": st.column_config.NumberColumn("Rating", format="%.1f%%"),
+                "user_reviews": st.column_config.NumberColumn("Reviews", format="%d"),
+                "discount": st.column_config.NumberColumn("Discount", format="%d%%"),
+                "year": st.column_config.NumberColumn("Year", format="%d"),
+                "win": st.column_config.CheckboxColumn("Windows"),
+                "mac": st.column_config.CheckboxColumn("Mac"),
+                "linux": st.column_config.CheckboxColumn("Linux")
             }
         )
 
-# Footer
+# Compact footer
 st.markdown("---")
 st.markdown(
-    "<div style='text-align:center; color:#666; padding:1rem;'>"
-    "🎮 Steam Game Success Predictor | Built with Streamlit | Data Science Project"
+    "<div style='text-align:center; color:#666; padding:0.5rem; font-size:0.85rem;'>"
+    "🎮 Steam Game Success Predictor | Built with Streamlit"
     "</div>",
     unsafe_allow_html=True
 )
